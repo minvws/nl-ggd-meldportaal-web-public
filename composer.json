@@ -1,0 +1,109 @@
+{
+    "name": "minvws/nl-ggd-meldportaal-web",
+    "type": "project",
+    "description": "",
+    "keywords": [],
+    "license": "EUPL-1.2",
+    "require": {
+        "php": "^8.0",
+        "ext-gd": "*",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "ext-sodium": "*",
+        "ext-redis": "*",
+        "atomescrochus/laravel-string-similarities": "^2.1",
+        "brenard/php-unidecode": "dev-master",
+        "guzzlehttp/guzzle": "^7.4.5",
+        "laravel-lang/lang": "^12.13",
+        "laravel/fortify": "^1.7",
+        "laravel/framework": "^9.0",
+        "laravel/socialite": "^5.2",
+        "minvws/horsebattery-laravel": "^1.2",
+        "minvws/laravel-crypto": "^v3.0.2",
+        "minvws/laravel-logging": "^v2.0",
+        "minvws/puzi-laravel": "^v3.0",
+        "predis/predis": "^2.1",
+        "punic/punic": "^3.8",
+        "spatie/laravel-csp": "^2.6",
+        "symfony/serializer": "^6.0",
+        "vyuldashev/laravel-openapi": "^1.8"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.6",
+        "barryvdh/laravel-ide-helper": "^2.10",
+        "brianium/paratest": "^6.4",
+        "fakerphp/faker": "^1.9.1",
+        "jaschilz/php-coverage-badger": "^2.0",
+        "jorijn/laravel-security-checker": "^2.2",
+        "laravel/sail": "^1.0.1",
+        "laravel/tinker": "^2.5",
+        "mockery/mockery": "^1.4.2",
+        "nunomaduro/collision": "^6.1",
+        "nunomaduro/larastan": "^2.1.6",
+        "phpunit/phpunit": "^9.3.3",
+        "psalm/plugin-laravel": "^2.0",
+        "slevomat/coding-standard": "^8.1",
+        "spatie/laravel-ignition": "^1.0",
+        "spatie/phpunit-snapshot-assertions": "^4.2",
+        "spatie/test-time": "^1.2",
+        "squizlabs/php_codesniffer": "^3.6",
+        "vimeo/psalm": "^5.6.0",
+        "ext-openssl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "install-lang-nl" : "cp -fR ./vendor/laravel-lang/lang/src/nl lang/",
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ],
+        "psalm": "vendor/bin/psalm --config=psalm.xml",
+        "phpstan": "vendor/bin/phpstan -c phpstan.neon",
+        "phpcs": "phpcs --standard=phpcs.xml"
+    },
+    "scripts-descriptions": {
+        "install-lang-nl": "Move laravel-lang/lang NL files to resources directory"
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "platform": {
+           "php": "8.0.2"
+        },
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "git@github.com:minvws/nl-rdo-laravel-logging.git"
+        }
+    ]
+}

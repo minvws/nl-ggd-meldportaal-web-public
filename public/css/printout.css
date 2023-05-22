@@ -1,0 +1,53 @@
+@media print {
+  body {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 15px;
+    margin-right: 100px;
+  }
+
+  .bordered {
+    border: 1px solid black;
+    font-weight: bold;
+    font-size: 2em;
+
+    letter-spacing: 5px;
+    text-align: center;
+
+    margin: 5px;
+    padding: 5px;
+
+  }
+
+  li {
+    padding: 10px;
+  }
+
+  table {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 600px;
+  }
+
+  td {
+    padding-top: 20px;
+    font-weight: bold;
+  }
+
+  @page {
+    margin: 0;
+  }
+
+  .pagebreak {
+    page-break-after: left;
+    margin-top: 100px;
+  }
+
+  .page {
+    margin: 100px 50px 100px 50px;
+  }
+
+  .ra {
+    float: right;
+  }
+}
+

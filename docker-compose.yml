@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  meldportaal:
+    build:
+      context: '.'
+      dockerfile: Dockerfile.meldportaal
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    environment:
+      APP_PORT: 460
+      APP_SERVICE: meldportaal
+    hostname: meldportaal.localdev
+    ports:
+      - '${APP_PORT:-460}:443'
+    tty: true
+    volumes:
+      - './meldportaal.conf:/etc/apache2/sites-enabled/meldportaal.conf'
+      - './xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini'
+      - './ssl/:/etc/apache2/ssl/'
+      - '.:/var/www/html'
+  meldportaal-uzi:
+    build:
+      context: '.'
+      dockerfile: Dockerfile.meldportaal
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    environment:
+      APP_PORT: 461
+      APP_SERVICE: meldportaal
+    hostname: meldportaal-uzi.localdev
+    ports:
+      - '${APP_PORT:-461}:443'
+    tty: true
+    volumes:
+      - './meldportaal-uzi.conf:/etc/apache2/sites-enabled/meldportaal-uzi.conf'
+      - './xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini'
+      - './ssl/:/etc/apache2/ssl/'
+      - '.:/var/www/html'
+  meldportaal_db:
+    container_name: meldportaal_db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: meldportaal
+    image: 'postgres:12'
+    ports:
+      - '5432:5432'
+    volumes:
+      - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  inge7-redis:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass EkExr238Kwpodw0MbKDG0VJzDcTxgI
+    volumes:
+      - cache:/data
+volumes:
+  cache:
+    driver: local

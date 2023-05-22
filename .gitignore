@@ -1,0 +1,31 @@
+# Directories
+/build/
+/node_modules/
+/public/hot/
+/public/storage/
+/secrets/
+/ssl/
+/vendor/
+
+# Files
+/.env
+/.env.backup
+/.phpunit.result.cache
+/Homestead.json
+/Homestead.yaml
+/npm-debug.log
+/phpunit.xml
+/public/mix-manifest.json
+/yarn-error.log
+/yarn.lock
+/_ide_helper.php
+
+# Groups
+/storage/*.key
+/public/js/app.js*
+/public/css/app.css*
+
+# Roobot Framework local install
+env
+/tests/**/*.pyc
+/storage/debugbar

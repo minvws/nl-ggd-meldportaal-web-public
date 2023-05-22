@@ -1,0 +1,28 @@
+.instructions {
+  background-color: #f3f3f3;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.instructions h1 {
+    margin: 2rem 0;
+    font-size: 1.60181rem;
+}
+
+.instructions button,
+.instructions a.button,
+.instructions input[type="button"],
+.instructions input[type="submit"],
+.instructions input[type="reset"] {
+  line-height: 1.5rem;
+}
+
+.instructions button:last-child,
+.instructions a.button:last-child,
+.instructions input[type="button"]:last-child,
+.instructions input[type="submit"]:last-child,
+.instructions input[type="reset"]:last-child {
+  margin-top: auto;
+}

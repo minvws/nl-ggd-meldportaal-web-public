@@ -1,0 +1,97 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 3
+      matrix:
+        php-versions: [ '8.0', '8.1', '8.2' ]
+    services:
+      postgres:
+        image: postgres:12.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ci_db_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install PHP
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: pcov, pgsql, zip
+    - name: Cache PHP vendor directory
+      uses: actions/cache@v3
+      with:
+        path: vendor/
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+    - name: Install Dependencies
+      env:
+        COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.REPO_READ_ONLY_TOKEN }}"}}'
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Generate key
+      run: php artisan key:generate --env=testing
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    - name: Create SSL dir
+      run: mkdir ssl
+    - name: Create dummy app.js
+      run: |
+        mkdir public/js
+        touch public/js/app.js
+    - name: "Create SSL certificates"
+      run: openssl genrsa -out "ssl/privkey.pem" 2048 && openssl req -x509 -new -nodes -key "ssl/privkey.pem" -subj "/CN=${name}/C=NL/L=Amsterdam" -days 3650 -out "ssl/cert.pem"
+    - name: Generate x509 keypair (hsm)
+      run: openssl req -new -x509 -subj /CN=Ontvanger -keyout ssl/hsm.key -out hsm.pem -nodes
+    - name: Generate x509 keypair (yubi)
+      run: openssl req -new -x509 -subj /CN=Ontvanger -keyout ssl/yubi.key -out yubi.pem -nodes
+    - name: Execute tests (Unit and Feature)
+      env:
+        DB_CONNECTION: pgsql
+        DB_DATABASE: ci_db_test
+        DB_HOST: 127.0.0.1
+        DB_PORT: 5432
+        DB_USERNAME: postgres
+        DB_PASSWORD: postgres
+      run: vendor/bin/phpunit --printer \\Tests\\ResultFilePrinter --coverage-clover meldportaal_php_clover.xml
+
+    - id: phpunit-output
+      if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+      run: |
+        body="$(cat phpunit.out)"
+        body="${body//'%'/'%25'}"
+        body="${body//$'\n'/'%0A'}"
+        body="${body//$'\r'/'%0D'}"
+        echo "body=$body" >> $GITHUB_OUTPUT
+
+    - name: Find Comment
+      if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+      uses: peter-evans/find-comment@v2
+      id: fc
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: PHPUnit results
+
+    - name: Create comment
+      if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        edit-mode: replace
+        body: |
+          PHPUnit results for Continuous Integration
+          <br>
+          ${{ steps.phpunit-output.outputs.body }}
