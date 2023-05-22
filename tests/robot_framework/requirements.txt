@@ -1,0 +1,7 @@
+pyotp
+robotframework-browser 
+robotframework-debugLibrary 
+robotframework-otp
+robotframework-postgresqldb
+rpaframework-pdf
+qrcode

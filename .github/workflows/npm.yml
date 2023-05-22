@@ -1,0 +1,21 @@
+name: Node - npm run lint
+
+on:
+  push:
+    branches: [main, develop, release/**, hotfix/**]
+  pull_request:
+    branches: [main, develop, release/**, hofix/**]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: npm ci
+      - run: npm run audit -- --production
+      - run: npm run build
+      - run: npm run lint

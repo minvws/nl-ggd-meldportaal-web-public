@@ -1,0 +1,10 @@
+{
+  "include": ["resources/js/**/*"],
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "target": "es6"
+  }
+}

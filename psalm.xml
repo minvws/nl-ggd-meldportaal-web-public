@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="6"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+>
+    <projectFiles>
+        <directory name="app" />
+        <directory name="database/factories" />
+        <directory name="database/seeders" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+    <stubs>
+        <file name="vendor/nunomaduro/larastan/stubs/Contracts/Container.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Contracts/Pagination.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Contracts/Queue.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Contracts/Support.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Redis/Connection.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Attribute.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/BelongsTo.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/BelongsToMany.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Collection.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/EloquentBuilder.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/EloquentCollection.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Enumerable.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/EnumeratesValues.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Facades.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Factory.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Gate.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/HasMany.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/HasManyThrough.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/HasOne.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/HasOneOrMany.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/HasOneThrough.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Helpers.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/HigherOrderProxies.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Log/Logger.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Mailable.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Model.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/MorphMany.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/MorphOne.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/MorphOneOrMany.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/MorphTo.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/MorphToMany.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Pagination.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/QueryBuilder.stub" />
+        <file name="vendor/nunomaduro/larastan/stubs/Relation.stub" />
+        <file name="_ide_helper.php" />
+    </stubs>
+    <issueHandlers>
+        <!-- Needed because psalm does not understand model-property<TModelClass>, phpstan will check it -->
+        <InvalidArgument>
+            <errorLevel type="suppress">
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::make" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::create" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::find" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::findMany" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::findOrFail" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::findOrNew" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::first" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::firstOrNew" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::firstOrCreate" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::updateOrCreate" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::update" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::forceCreate" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::firstOrFail" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::sole" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::firstOr" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::where" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::orWhere" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::firstWhere" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::get" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::getModels" />
+                <referencedFunction name="Illuminate\Database\Eloquent\Builder::value" />
+            </errorLevel>
+        </InvalidArgument>
+    </issueHandlers>
+   <disableExtensions>
+     <extension name="apcu"/>
+   </disableExtensions>
+<!--    <plugins>-->
+<!--        <pluginClass class="Psalm\LaravelPlugin\Plugin"/>-->
+<!--    </plugins>-->
+</psalm>

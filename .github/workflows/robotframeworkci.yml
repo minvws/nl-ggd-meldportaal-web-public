@@ -1,0 +1,132 @@
+name: Robot Framework tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  composer-install:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      max-parallel: 3
+      matrix:
+        php-versions: [ '8.0' ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: vendor/
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install PHP
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: zip
+      - name: Install Dependencies
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.REPO_READ_ONLY_TOKEN }}"}}'
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+  robot-tests:
+    needs:
+      - composer-install
+    runs-on: ubuntu-20.04
+
+    strategy:
+      max-parallel: 3
+      matrix:
+        php-versions: [ '8.0' ]
+    services:
+      postgres:
+        image: postgres:12.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: meldportaal_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install PHP
+      uses: shivammathur/setup-php@master
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: xdebug, pgsql
+    - uses: actions/cache@v3
+      with:
+        path: vendor/
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+    - name: Copy .env
+      run: cp -n .env.citest .env
+    - name: Generate key
+      run: php artisan key:generate
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+    - name: Generate x509 keypair
+      run: openssl req -new -x509 -subj /CN=Ontvanger -keyout ontvanger.key -out ontvanger.pem -nodes
+    - name: Generate x509 keypair (hsm)
+      run: openssl req -new -x509 -subj /CN=Ontvanger -keyout hsm.key -out hsm.pem -nodes
+    - name: Generate x509 keypair (yubi)
+      run: openssl req -new -x509 -subj /CN=Ontvanger -keyout yubi.key -out yubi.pem -nodes
+    - name: Build FE
+      run: npm ci && npm run build
+    - name: Set EC env
+      run: echo "PUBKEY_CLIENT=$(cat ec.pub)" >> $GITHUB_ENV
+    - name: Run Laravel Server
+      env:
+        APP_DEBUG: false
+        DB_CONNECTION: pgsql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 5432
+        DB_DATABASE: meldportaal_db
+        DB_USERNAME: postgres
+        DB_PASSWORD: postgres
+        DB_SSLMODE: prefer
+        PUBKEY_CLIENT: ${{ env.PUBKEY_CLIENT }}
+        ZKVI_PUBKEY_CLIENT: ${{ env.PUBKEY_CLIENT }}
+        CERTIFICATE_RECIPIENT: ${{ github.workspace }}/ontvanger.pem
+        CERTIFICATE_TEST: ${{ github.workspace }}/ontvanger.pem
+        CERTIFICATE_HSM_TEST: ${{ github.workspace }}/hsm.pem
+        CERTIFICATE_YUBI_TEST: ${{ github.workspace }}/yubi.pem
+        RECIPIENT_CERTIFICATES: ${{ github.workspace }}/hsm.pem,${{ github.workspace }}/yubi.pem
+        KEY_HSM_TEST: ${{ github.workspace }}/hsm.key
+        KEY_YUBI_TEST: ${{ github.workspace }}/yubi.key
+        KEY_TEST: ${{ github.workspace }}/ontvanger.key
+      run: php artisan serve > /dev/null 2>&1 &
+    - name: Migrate and seed database
+      run: php artisan migrate:fresh --seed
+    - name: log .env
+      run: cat .env
+    - name: Set up Python 3.8.5
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.8.5"
+    - name: Install Robot Framework dependencies
+      run: |
+        sudo apt-get install --reinstall libpq-dev
+        python -m pip install --upgrade pip
+        pip install -r tests/robot_framework/requirements.txt
+        rfbrowser init
+    - name: Execute tests (Robot Framework)
+      run: |
+        python -m robot -d tests/robot_framework/results -x outputxunit.xml -i CI -v headless:true tests/robot_framework
+    - name: Upload RF test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: reports
+        path: tests/robot_framework/results
+
+    - name: Publish Robot Framework test results
+      uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      if: ${{ always() && github.actor != 'dependabot[bot]' }}
+      with:
+        junit_files: tests/robot_framework/results/outputxunit.xml
+        check_name: Robot Framework FE tests

@@ -1,0 +1,63 @@
+:root {
+  --pagination-border-width: 1px 0 0 0;
+  --pagination-border-style: solid;
+  --pagination-border-color: #d7d7d7;
+  --pagination-padding-top: 0.5rem;
+  --pagination-gap: 0.25rem;
+  /* Item */
+  --pagination-item-height: 2rem;
+  --pagination-item-width: 2rem;
+  --pagination-item-padding: 0 0.5rem;
+  --pagination-item-text-color: #000;
+  /* --pagination-item-background-color: ; */
+  --pagination-item-text-decoration: none;
+  /* Selected - active item */
+  --pagination-item-active-background-color: #ca005d;
+  --pagination-item-active-text-color: #fff;
+}
+
+.pagination > ul {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  padding-top: var(--pagination-padding-top);
+  border-width: var(--pagination-border-width);
+  border-style: var(--pagination-border-style);
+  border-color: var(--pagination-border-color);
+  gap: var(--pagination-gap);
+}
+.pagination > ul > li {
+  margin-top: -0.1rem; /* fix for render issue; white space between this li and the parent ul border */
+  padding: 0;
+  list-style: none;
+}
+.pagination > ul > li > a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--pagination-item-padding);
+  color: var(--pagination-item-text-color);
+  background-color: var(--pagination-item-background-color, transparent);
+  height: var(--pagination-item-height);
+  min-width: 2rem;
+  margin: 0;
+  text-decoration: var(--pagination-item-text-decoration);
+  white-space: nowrap;
+}
+.pagination > ul > li > a[aria-current] {
+  background-color: var(--pagination-item-active-background-color);
+  color: var(--pagination-item-active-text-color);
+}
+.pagination > ul > li > a::before {
+  content: none;
+}
+.pagination > ul > li:hover {
+  background-color: var(--pagination-item-active-background-color);
+}
+.pagination > ul > li:hover span,
+.pagination > ul > li:hover a {
+  color: var(--pagination-item-active-text-color);
+}
+
+/*# sourceMappingURL=pagination.css.map */

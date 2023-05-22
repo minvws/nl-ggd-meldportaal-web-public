@@ -1,0 +1,45 @@
+FROM php:8.0-apache
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y \
+        git \
+        make \
+        libicu-dev \
+        libpng-dev \
+        libpq-dev \
+        libzip-dev \
+        unzip \
+        zlib1g-dev \
+        libgmp-dev \
+        postgresql-client \
+    && docker-php-ext-configure gd \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install \
+        gmp \
+        gd \
+        intl \
+        pdo \
+        pdo_pgsql\
+        pgsql \
+        sockets \
+        zip \
+    && apt-get -y autoremove \
+    && apt-get clean \
+    && rm -rf \
+        /tmp/* \
+        /var/lib/apt/lists/* \
+        /var/tmp/*
+
+RUN a2enmod rewrite \
+    && a2enmod ssl
+
+RUN mkdir /etc/apache2/ssl \
+ && rm /etc/apache2/sites-enabled/000-default.conf
+
+RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
+RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y nodejs
+
+RUN pecl install xdebug
